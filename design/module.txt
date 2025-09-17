@@ -1,0 +1,7 @@
+// module.q
+#module
+
+@expose int pi = 3; // "int pi;" put in module.h and "int pi = 3;" put in module.c
+int e = 2; // put only in module.c
+
+@expose f2 vec = $(3, 3);
