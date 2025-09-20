@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 #include "types.h"
 #include "console.h"
 
@@ -12,9 +13,11 @@ enum ttype
 {
     TOKEN_HASH_COMMAND,
     TOKEN_DECORATOR,
+    TOKEN_SYMBOL,
     TOKEN_TEXT,
     TOKEN_VALUE_INTEGER,
-    TOKEN_VALUE_FLOAT
+    TOKEN_VALUE_FLOAT,
+    TOKEN_END
 };
 
 struct token
@@ -33,7 +36,8 @@ struct token
 
 struct tokens
 {
-    u32 length;
+    u32 max_length;
+    u32 current_length;
     struct token *tokens;
 };
 
