@@ -53,18 +53,20 @@ struct tokens *tokenise(char *content)
             }
             buffer[i] = '\0';
 
-            current->type = isDecimal ? TOKEN_VALUE_FLOAT : TOKEN_VALUE_INTEGER;
             if(isDecimal)
             {
                 if('f' == peek(letter))
                 {
+                    current->type = TOKEN_VALUE_FLOAT;
                     current->value.number_float = (float)atof(buffer);
                 } else 
                 {
+                    current->type = TOKEN_VALUE_DOUBLE;
                     current->value.number_double = atof(buffer);
                 }
             } else 
             {
+                current->type = TOKEN_VALUE_INTEGER;
                 current->value.number_integer = atoi(buffer);
             }
             advance(t, &current);

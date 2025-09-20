@@ -18,6 +18,7 @@ enum ttype
     TOKEN_TEXT,
     TOKEN_VALUE_INTEGER,
     TOKEN_VALUE_FLOAT,
+    TOKEN_VALUE_DOUBLE,
     TOKEN_END
 };
 
