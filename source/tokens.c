@@ -31,6 +31,7 @@ struct tokens *tokenise(char *content)
             continue;
         }
 
+        // int | float | double
         if(isnumber(*letter))
         {
             bool isDecimal = false;
@@ -55,7 +56,13 @@ struct tokens *tokenise(char *content)
             current->type = isDecimal ? TOKEN_VALUE_FLOAT : TOKEN_VALUE_INTEGER;
             if(isDecimal)
             {
-                current->value.number_float = atof(buffer);
+                if('f' == peek(letter))
+                {
+                    current->value.number_float = (float)atof(buffer);
+                } else 
+                {
+                    current->value.number_double = atof(buffer);
+                }
             } else 
             {
                 current->value.number_integer = atoi(buffer);
@@ -64,6 +71,7 @@ struct tokens *tokenise(char *content)
             continue;
         }
 
+        // symbol
         if(isalpha(*letter) || '_' == *letter)
         {
             char buffer[64];
@@ -84,4 +92,4 @@ struct tokens *tokenise(char *content)
     }
 
     return t;
-}
+} 

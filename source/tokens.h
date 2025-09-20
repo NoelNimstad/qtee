@@ -6,6 +6,7 @@
 #include <string.h>
 #include "types.h"
 #include "console.h"
+#include "peek.h"
 
 #define DEFAULT_TOKEN_AMMOUNT   (2 << 8)
 
