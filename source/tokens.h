@@ -8,7 +8,9 @@
 #include "console.h"
 #include "peek.h"
 
-#define DEFAULT_TOKEN_AMMOUNT   (2 << 8)
+#define DEFAULT_TOKEN_AMMOUNT           (2 << 8)
+#define NON_STRING_BUFFER_MAX_LENGTH    (2 << 4)
+#define NUMBER_BUFFER_MAX_LENGTH        (2 << 5)
 
 enum ttype
 {
@@ -28,7 +30,7 @@ struct token
     union
     {
         // string
-        char *string;
+        char string[NON_STRING_BUFFER_MAX_LENGTH];
         // numbers
         float number_float;
         double number_double;
@@ -44,5 +46,6 @@ struct tokens
 };
 
 struct tokens *tokenise(char *content);
+void freeTokens(struct tokens *parent);
 
 #endif

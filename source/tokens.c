@@ -1,11 +1,21 @@
 #include "tokens.h"
 
-#define readWhileToBuffer(_b, _l, _c) { u8 i = 0;                   \
-                                        while((_c))                 \
-                                        {                           \
-                                            (_b)[i++] = *((_l)++);  \
-                                        }                           \
-                                        (_b)[i] = '\0'; }
+static inline void readToBufferWhile(char **letter, char *buffer, bool (*condition)(char))
+{
+    u8 i = 0;
+    while(condition(**letter)
+       && '\0' != **letter
+       && NON_STRING_BUFFER_MAX_LENGTH - 1 > i)
+    {
+        buffer[i++] = *(*letter)++;
+    }
+    buffer[i] = '\0';
+}
+
+static inline bool checkLetterIsValidKeywordOrSymbolChar(char letter)
+{
+    return isalnum(letter) || '_' == letter;
+}
 
 static inline void advance(struct tokens *t, struct token **c)
 {
@@ -16,6 +26,7 @@ static inline void advance(struct tokens *t, struct token **c)
         t->max_length = t->max_length << 2;
         t->tokens = (struct token*)realloc(t->tokens, t->max_length * sizeof(struct token));
         assert(NULL != t->tokens, "failed to allocate more memory for tokens.", NULL);
+        *c = t->tokens + t->current_length;
     }
 }
 
@@ -42,7 +53,7 @@ struct tokens *tokenise(char *content)
         if(isnumber(*letter))
         {
             bool isDecimal = false;
-            char buffer[64];
+            char buffer[NUMBER_BUFFER_MAX_LENGTH];
             u8 i = 0;
             while(isnumber(*letter))
             {
@@ -84,13 +95,13 @@ struct tokens *tokenise(char *content)
         // symbol
         if(isalpha(*letter) || '_' == *letter)
         {
-            char buffer[64];
-            readWhileToBuffer(buffer,
-                              letter,
-                              isalnum(*letter) || '_' == *letter);
+            char buffer[NON_STRING_BUFFER_MAX_LENGTH];
+            readToBufferWhile(&letter,
+                              buffer,
+                              checkLetterIsValidKeywordOrSymbolChar);
              
             current->type = TOKEN_SYMBOL;
-            current->value.string = strdup(buffer);
+            strncpy(current->value.string, buffer, NON_STRING_BUFFER_MAX_LENGTH);
             printf("%s\n", current->value.string);
             advance(t, &current);
             continue;
@@ -100,13 +111,13 @@ struct tokens *tokenise(char *content)
         {
             case '@':
                 letter++;
-                char buffer[64];
-                readWhileToBuffer(buffer,
-                                  letter,
-                                  isalnum(*letter) || '_' == *letter);
+                char buffer[NON_STRING_BUFFER_MAX_LENGTH];
+                readToBufferWhile(&letter,
+                                  buffer,
+                                  checkLetterIsValidKeywordOrSymbolChar);
              
                 current->type = TOKEN_DECORATOR;
-                current->value.string = strdup(buffer);
+                strncpy(current->value.string, buffer, NON_STRING_BUFFER_MAX_LENGTH);
                 printf("@%s\n", current->value.string);
                 advance(t, &current);
                 break;
@@ -121,3 +132,9 @@ struct tokens *tokenise(char *content)
 
     return t;
 } 
+
+void freeTokens(struct tokens *parent)
+{
+    free(parent->tokens);
+    free(parent);
+}
