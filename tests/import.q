@@ -1,3 +1,5 @@
 #import <sample_import>
 
-float cost = 1.99;
+@mutable float cost = 1.99;
+
+@test

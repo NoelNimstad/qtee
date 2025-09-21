@@ -1,5 +1,12 @@
 #include "tokens.h"
 
+#define readWhileToBuffer(_b, _l, _c) { u8 i = 0;                   \
+                                        while((_c))                 \
+                                        {                           \
+                                            (_b)[i++] = *((_l)++);  \
+                                        }                           \
+                                        (_b)[i] = '\0'; }
+
 static inline void advance(struct tokens *t, struct token **c)
 {
     (*c)++;
@@ -36,7 +43,7 @@ struct tokens *tokenise(char *content)
         {
             bool isDecimal = false;
             char buffer[64];
-            u8 i;
+            u8 i = 0;
             while(isnumber(*letter))
             {
                 buffer[i++] = *(letter++);
@@ -57,6 +64,7 @@ struct tokens *tokenise(char *content)
             {
                 if('f' == peek(letter))
                 {
+                    letter++;
                     current->type = TOKEN_VALUE_FLOAT;
                     current->value.number_float = (float)atof(buffer);
                 } else 
@@ -77,21 +85,39 @@ struct tokens *tokenise(char *content)
         if(isalpha(*letter) || '_' == *letter)
         {
             char buffer[64];
-            u8 i;
-            while(isalnum(*letter) || '_' == *letter)
-            {
-                buffer[i++] = *(letter++);
-            }
-            buffer[i] = '\0';
-
+            readWhileToBuffer(buffer,
+                              letter,
+                              isalnum(*letter) || '_' == *letter);
+             
             current->type = TOKEN_SYMBOL;
             current->value.string = strdup(buffer);
+            printf("%s\n", current->value.string);
             advance(t, &current);
             continue;
         }
 
+        switch(*letter)
+        {
+            case '@':
+                letter++;
+                char buffer[64];
+                readWhileToBuffer(buffer,
+                                  letter,
+                                  isalnum(*letter) || '_' == *letter);
+             
+                current->type = TOKEN_DECORATOR;
+                current->value.string = strdup(buffer);
+                printf("@%s\n", current->value.string);
+                advance(t, &current);
+                break;
+            default:
+                break;
+        }
+
         letter++;
     }
+
+    current->type = TOKEN_END;
 
     return t;
 } 
